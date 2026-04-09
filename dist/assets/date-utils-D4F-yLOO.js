@@ -1,0 +1,1 @@
+import{p as e,i as n,f as o,e as s}from"./es-hkAIMnhX.js";function i(t,a="dd/MM/yyyy"){if(!t)return"-";try{const r=e(t);return n(r)?o(r,a,{locale:s}):"-"}catch{return"-"}}function u(){return new Date().toISOString()}export{i as f,u as g};
