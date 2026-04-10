@@ -4,7 +4,7 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/vocal-coach-app/',
+  base: '/',
   plugins: [react()],
   resolve: {
     alias: {
