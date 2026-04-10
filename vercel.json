@@ -1,9 +1,5 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/assets/(.*)", "dest": "/assets/$1" },
-    { "source": "/(.*)", "dest": "/index.html" }
-  ]
+  "framework": "vite"
 }
