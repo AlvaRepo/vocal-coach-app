@@ -272,7 +272,7 @@ export function NotesPage() {
                       form.setValue('type', value as NoteFormData['type'])
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger id="type">
                       <SelectValue placeholder="Seleccionar..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -310,7 +310,7 @@ export function NotesPage() {
                   value={form.watch('studentId') || 'none'}
                   onValueChange={(value) => form.setValue('studentId', value === 'none' ? '' : value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="studentId">
                     <SelectValue placeholder="Seleccionar alumno..." />
                   </SelectTrigger>
                   <SelectContent>

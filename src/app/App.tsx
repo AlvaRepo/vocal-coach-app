@@ -5,11 +5,19 @@ import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { router } from './router';
 import { seedDatabase } from '@/shared/lib/seed-data';
+import { initAuthListener } from '@/shared/stores/auth-store';
 
 export function App() {
   useEffect(() => {
     // Inicializar base de datos con seed data en el primer arranque
     seedDatabase();
+    
+    // Inicializar listener de autenticación
+    const subscription = initAuthListener();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

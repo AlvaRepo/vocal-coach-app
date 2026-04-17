@@ -12,9 +12,11 @@ import {
   Menu,
   Music,
   ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { useUIStore } from '@/shared/stores/ui-store';
+import { useAuthStore } from '@/shared/stores/auth-store';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 
@@ -47,6 +49,7 @@ const secondaryNavigation = [
 export function AppLayout() {
   const location = useLocation();
   const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { user, signOut } = useAuthStore();
 
   return (
     <div className="min-h-screen bg-background">
@@ -111,13 +114,37 @@ export function AppLayout() {
           </nav>
 
           {/* Footer */}
-          <div className="border-t border-white/5 p-4">
-            <p className="text-xs text-muted-foreground">
-              Vocal Coach Admin v0.1.0
-            </p>
-            <p className="text-xs text-muted-foreground">
-              MVP - localStorage only
-            </p>
+          <div className="border-t border-white/5 p-4 space-y-3">
+            <div className="flex items-center gap-3 px-2">
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary ring-1 ring-primary/30">
+                {user?.email?.substring(0, 2).toUpperCase() || 'VC'}
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-xs font-medium text-foreground truncate">{user?.email}</p>
+                <p className="text-[10px] text-muted-foreground truncate italic">Director</p>
+              </div>
+            </div>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={signOut}
+              className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="text-xs font-semibold uppercase tracking-wider">Cerrar Sesión</span>
+            </Button>
+
+            <Separator className="bg-white/5" />
+            
+            <div className="px-2">
+              <p className="text-[10px] text-muted-foreground/60 font-medium">
+                Vocal Coach Admin v0.1.0
+              </p>
+              <p className="text-[10px] text-soul-magenta/60 font-bold tracking-tighter uppercase">
+                Supabase Backend
+              </p>
+            </div>
           </div>
         </div>
       </aside>
@@ -147,7 +174,12 @@ export function AppLayout() {
 
           <div className="flex-1" />
 
-          {/* Aquí se pueden agregar más controles del header */}
+          {/* Profile Quick Access */}
+          <div className="flex items-center gap-3 lg:hidden">
+            <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground hover:text-destructive">
+               <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
         </header>
 
         {/* Page content con transición */}

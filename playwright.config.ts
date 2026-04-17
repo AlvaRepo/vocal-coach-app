@@ -9,5 +9,14 @@ export default defineConfig({
   },  
   projects: [  
     { name: 'Chromium', use: { browserName: 'chromium' } },  
-  ],  
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:5174',
+    reuseExistingServer: true,
+  },
+  use: {
+    baseURL: 'http://localhost:5174',
+    headless: true,
+  },
 }); 
