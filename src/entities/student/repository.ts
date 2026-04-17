@@ -1,15 +1,6 @@
 // entities/student/repository.ts
 
-import { LocalStorageRepository } from '@/shared/api/local-storage';
+import { SupabaseRepository } from '@/shared/api/supabase-repository';
 import type { Student } from '@/shared/types/domain';
 
-/**
- * Repository para gestión de alumnos
- * 
- * 🔴 MIGRACIÓN FUTURA:
- * Cuando exista backend, reemplazar por:
- * export const studentRepository = new HttpRepository<Student>({
- *   baseUrl: '/api/students'
- * });
- */
-export const studentRepository = new LocalStorageRepository<Student>('students');
+export const studentRepository = new SupabaseRepository<Student>('students');

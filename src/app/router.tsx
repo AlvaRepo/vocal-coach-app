@@ -1,8 +1,9 @@
 // app/router.tsx
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { AppLayout } from './layout/AppLayout';
+import { ProtectedRoute } from '@/shared/components/auth/ProtectedRoute';
 
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const StudentsListPage = lazy(() => import('@/features/students/pages/StudentsListPage').then(m => ({ default: m.StudentsListPage })));
@@ -15,11 +16,24 @@ const ClassRecordsPage = lazy(() => import('@/features/classes/pages/ClassRecord
 const LibraryPage = lazy(() => import('@/features/library/pages/LibraryPage').then(m => ({ default: m.LibraryPage })));
 const CalendarPage = lazy(() => import('@/features/calendar/pages/CalendarPage').then(m => ({ default: m.CalendarPage })));
 const SettingsPage = lazy(() => import('@/features/settings/pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
+const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage').then(m => ({ default: m.LoginPage })));
 
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    element: (
+      <Suspense fallback={<div className="h-screen w-screen bg-background" />}>
+        <LoginPage />
+      </Suspense>
+    ),
+  },
+  {
     path: '/',
-    element: <AppLayout />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -85,4 +99,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+]);
