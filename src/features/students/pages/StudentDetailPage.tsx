@@ -7,7 +7,6 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Badge } from '@/shared/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
-import { Separator } from '@/shared/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { studentRepository } from '@/entities/student/repository';
@@ -22,6 +21,8 @@ import {
   calculateTechnicalAverage,
 } from '@/entities/student/utils';
 import { formatDate } from '@/shared/lib/date-utils';
+import { VocalMap } from '@/shared/components/ui/VocalMap';
+import { getTechnicalRecommendation } from '@/shared/lib/technical-mindset';
 import type { Student } from '@/shared/types/domain';
 
 export function StudentDetailPage() {
@@ -224,51 +225,85 @@ export function StudentDetailPage() {
               ) : (
                 <div className="space-y-4">
                   {technicalAverage !== null && (
-                    <div className="rounded-lg bg-muted p-4">
-                      <p className="text-sm font-medium">Promedio General</p>
-                      <p className="text-3xl font-bold text-primary">{technicalAverage}/5</p>
-                    </div>
-                  )}
-                  
-                  <Separator />
-                  
-                  <div className="grid gap-3">
-                    {Object.entries(student.technicalAssessment).map(([key, value]) => {
-                      if (value === undefined) return null;
-                      
-                      const labels: Record<string, string> = {
-                        pitch: 'Afinación',
-                        breathing: 'Respiración',
-                        projection: 'Proyección',
-                        diction: 'Dicción',
-                        rhythm: 'Ritmo',
-                        interpretation: 'Interpretación',
-                        stagePresence: 'Presencia Escénica',
-                        commitment: 'Compromiso/Constancia',
-                      };
-                      
-                      return (
-                        <div key={key} className="flex items-center justify-between">
-                          <span className="text-sm font-medium">{labels[key] || key}</span>
-                          <div className="flex items-center gap-2">
-                            <div className="flex gap-1">
-                              {[1, 2, 3, 4, 5].map((level) => (
-                                <div
-                                  key={level}
-                                  className={`h-6 w-6 rounded-sm ${
-                                    level <= value
-                                      ? 'bg-primary'
-                                      : 'bg-muted'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm font-bold w-8 text-right">{value}/5</span>
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <div className="rounded-xl bg-surface-dark border border-white/5 p-6 flex flex-col items-center justify-center">
+                        <VocalMap assessment={student.technicalAssessment} />
+                        <div className="mt-6 text-center">
+                          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Promedio General</p>
+                          <p className="text-4xl font-black text-soul-magenta">{technicalAverage}/5</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="rounded-xl border border-soul-magenta/20 bg-soul-magenta/5 p-6">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Target className="h-4 w-4 text-soul-magenta" />
+                            <h4 className="text-sm font-bold uppercase tracking-tight text-soul-magenta">Insight Pedagógico</h4>
+                          </div>
+                          {(() => {
+                            const insight = getTechnicalRecommendation(student.technicalAssessment as any);
+                            if (!insight) return <p className="text-sm text-muted-foreground italic">El alumno presenta un equilibrio técnico excelente.</p>;
+                            
+                            return (
+                              <div className="space-y-4 text-sm">
+                                <p className="font-medium text-foreground">
+                                  Prioridad: <span className="text-soul-magenta">{insight.title}</span>
+                                </p>
+                                <p className="text-muted-foreground leading-relaxed">
+                                  {insight.description}
+                                </p>
+                                <div className="rounded-lg bg-surface-dark/80 p-3 border border-white/5">
+                                  <p className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Acción</p>
+                                  <p className="text-xs">{insight.suggestedAction}</p>
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                        
+                        <div className="rounded-xl border border-white/5 bg-white/5 p-6">
+                          <h4 className="text-sm font-bold uppercase tracking-tight mb-4">Métricas Detalladas</h4>
+                          <div className="grid gap-3">
+                            {Object.entries(student.technicalAssessment).map(([key, value]) => {
+                              if (value === undefined) return null;
+                              
+                              const labels: Record<string, string> = {
+                                pitch: 'Afinación',
+                                breathing: 'Respiración',
+                                projection: 'Proyección',
+                                diction: 'Dicción',
+                                rhythm: 'Ritmo',
+                                interpretation: 'Interpretación',
+                                stagePresence: 'Presencia Escénica',
+                                commitment: 'Compromiso/Constancia',
+                              };
+                              
+                              return (
+                                <div key={key} className="flex items-center justify-between">
+                                  <span className="text-sm font-medium">{labels[key] || key}</span>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex gap-1">
+                                      {[1, 2, 3, 4, 5].map((level) => (
+                                        <div
+                                          key={level}
+                                          className={`h-6 w-6 rounded-sm ${
+                                            level <= value
+                                              ? 'bg-soul-magenta'
+                                              : 'bg-white/10'
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                    <span className="text-sm font-bold w-8 text-right">{value}/5</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

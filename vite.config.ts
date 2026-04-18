@@ -20,7 +20,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/e2e/**', '**/sdd/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/e2e/**', '**/sdd/**', '**/*.spec.ts', '**/*.spec.tsx'],
     testMatch: ['**/*.test.ts', '**/*.test.tsx'],
     alias: {
       '@': path.resolve(__dirname, './src'),

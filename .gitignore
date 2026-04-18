@@ -45,3 +45,9 @@ coverage
 # Misc
 .turbo
 .vercel
+
+# Agents & CI
+.agents
+.claude
+skills-lock.json
+test-results

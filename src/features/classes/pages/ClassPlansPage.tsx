@@ -20,12 +20,15 @@ import {
   DialogTrigger,
 } from '@/shared/components/ui/dialog';
 import { classPlanRepository } from '@/entities/repositories';
+import { cn } from '@/shared/lib/utils';
 import { studentRepository } from '@/entities/student/repository';
 import { classTypeRepository } from '@/entities/repositories';
 import { formatDate } from '@/shared/lib/date-utils';
 import { getStudentFullName } from '@/entities/student/utils';
 import type { ClassPlan, Student, ClassType } from '@/shared/types/domain';
 import { classPlanFormSchema, type ClassPlanFormData } from '../schemas/class-plan-form.schema';
+import { ModularPlanner } from '../components/ModularPlanner';
+import { DEFAULT_HYBRID_PLAN } from '@/shared/lib/pedagogy-presets';
 
 export function ClassPlansPage() {
   const [plans, setPlans] = useState<ClassPlan[]>([]);
@@ -36,6 +39,8 @@ export function ClassPlansPage() {
   const [editingPlan, setEditingPlan] = useState<ClassPlan | null>(null);
   const [filterStudent, setFilterStudent] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+  const [modularBlocks, setModularBlocks] = useState<ClassPlan['modularBlocks']>([]);
 
   const form = useForm<ClassPlanFormData>({
     resolver: zodResolver(classPlanFormSchema),
@@ -79,6 +84,8 @@ export function ClassPlansPage() {
         observations: editingPlan.observations || '',
         status: editingPlan.status,
       });
+      setModularBlocks(editingPlan.modularBlocks || []);
+      setIsAdvancedMode(!!editingPlan.modularBlocks?.length);
     } else {
       form.reset({
         title: '',
@@ -141,6 +148,7 @@ export function ClassPlansPage() {
       repertoire: repertoireArray,
       anticipatedDifficulties: data.difficultiesExpected || undefined,
       observations: data.observations || undefined,
+      modularBlocks: isAdvancedMode ? modularBlocks : undefined,
     };
 
     try {
@@ -346,51 +354,79 @@ export function ClassPlansPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="objective" className="text-sm font-medium">
-                  Objetivo de la Clase
-                </label>
-                <Textarea
-                  id="objective"
-                  placeholder="¿Qué quieres lograr en esta clase?"
-                  {...form.register('objective')}
-                />
+              <div className="flex items-center justify-between py-2 border-y border-white/5 my-4">
+                <div className="space-y-0.5">
+                  <h4 className="text-sm font-bold uppercase tracking-tight text-soul-magenta">Modo Avanzado</h4>
+                  <p className="text-[10px] text-muted-foreground italic">Usar bloques pedagógicos (Estill, SLS, SOVT)</p>
+                </div>
+                <Button 
+                  type="button" 
+                  variant={isAdvancedMode ? "default" : "outline"} 
+                  size="sm" 
+                  className={cn("h-7 px-3 text-[10px] font-bold", isAdvancedMode && "bg-soul-magenta hover:bg-soul-magenta/80")}
+                  onClick={() => {
+                    if (!isAdvancedMode && modularBlocks?.length === 0) setModularBlocks(DEFAULT_HYBRID_PLAN as any);
+                    setIsAdvancedMode(!isAdvancedMode);
+                  }}
+                >
+                  {isAdvancedMode ? "ACTIVADO" : "ACTIVAR"}
+                </Button>
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="warmup" className="text-sm font-medium">
-                  Calentamiento
-                </label>
-                <Textarea
-                  id="warmup"
-                  placeholder="Ejercicios de calentamiento..."
-                  {...form.register('warmup')}
+              {isAdvancedMode ? (
+                <ModularPlanner 
+                  blocks={modularBlocks || []} 
+                  onChange={setModularBlocks} 
                 />
-              </div>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <label htmlFor="objective" className="text-sm font-medium">
+                      Objetivo de la Clase
+                    </label>
+                    <Textarea
+                      id="objective"
+                      placeholder="¿Qué quieres lograr en esta clase?"
+                      {...form.register('objective')}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <label htmlFor="exercises" className="text-sm font-medium">
-                  Ejercicios Técnicos (uno por línea)
-                </label>
-                <Textarea
-                  id="exercises"
-                  placeholder="Ejercicio 1&#10;Ejercicio 2"
-                  rows={3}
-                  {...form.register('exercises')}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <label htmlFor="warmup" className="text-sm font-medium">
+                      Calentamiento
+                    </label>
+                    <Textarea
+                      id="warmup"
+                      placeholder="Ejercicios de calentamiento..."
+                      {...form.register('warmup')}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <label htmlFor="repertoire" className="text-sm font-medium">
-                  Repertorio (uno por línea)
-                </label>
-                <Textarea
-                  id="repertoire"
-                  placeholder="Canción 1&#10;Canción 2"
-                  rows={3}
-                  {...form.register('repertoire')}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <label htmlFor="exercises" className="text-sm font-medium">
+                      Ejercicios Técnicos (uno por línea)
+                    </label>
+                    <Textarea
+                      id="exercises"
+                      placeholder="Ejercicio 1&#10;Ejercicio 2"
+                      rows={3}
+                      {...form.register('exercises')}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="repertoire" className="text-sm font-medium">
+                      Repertorio (uno por línea)
+                    </label>
+                    <Textarea
+                      id="repertoire"
+                      placeholder="Canción 1&#10;Canción 2"
+                      rows={3}
+                      {...form.register('repertoire')}
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="space-y-2">
                 <label htmlFor="difficultiesExpected" className="text-sm font-medium">

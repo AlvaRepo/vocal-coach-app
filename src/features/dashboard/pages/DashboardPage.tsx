@@ -10,6 +10,7 @@ import { studentRepository } from '@/entities/student/repository';
 import { classPlanRepository } from '@/entities/repositories';
 import { getActiveStudents, getStudentFullName } from '@/entities/student/utils';
 import { formatDate } from '@/shared/lib/date-utils';
+import { SuggestionsSection } from '../components/SuggestionsSection';
 import type { Student, ClassPlan } from '@/shared/types/domain';
 
 export function DashboardPage() {
@@ -160,6 +161,9 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Scientific Insights / Retention Guard */}
+      <SuggestionsSection students={students} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Próximas Clases */}

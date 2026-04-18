@@ -47,7 +47,8 @@ Sistema completo de administración para profesores de canto que trabajan con co
 - ✅ 10+ alumnos de ejemplo con datos realistas
 - ✅ 6 tipos de clases predefinidas
 - ✅ Biblioteca de melodías/escalas
-- ✅ Persistencia con localStorage
+- ✅ **Persistencia con Supabase** (Postgres)
+- ✅ **Autenticación real** con Supabase Auth
 - ✅ Exportación/importación JSON
 
 ### 🔴 Placeholders (Próximas Versiones)
@@ -83,6 +84,7 @@ Los siguientes módulos tienen la UI básica pero requieren funcionalidad comple
 | **Zustand** | 5.0 | State management global minimal |
 | **date-fns** | 4.1 | Manipulación de fechas |
 | **Sonner** | 1.7 | Toast notifications |
+| **Supabase** | latest | Backend as a Service (Auth, DB, Storage) |
 | **Lucide React** | 0.469 | Icon system |
 
 ### Justificación del Stack
@@ -188,13 +190,13 @@ interface IRepository<T> {
   // ...
 }
 
-// HOY: localStorage (temporal)
+// HOY: Supabase (Producción)
 export const studentRepository = 
-  new LocalStorageRepository<Student>('students');
+  new SupabaseRepository<Student>('students');
 
-// MAÑANA: HTTP API (1 línea cambiar)
-export const studentRepository = 
-  new HttpRepository<Student>({ baseUrl: '/api/students' });
+// OPCIONAL: LocalStorage (Offline/Demo)
+// export const studentRepository = 
+//   new LocalStorageRepository<Student>('students');
 ```
 
 **Ventajas:**
