@@ -20,6 +20,7 @@ import { useUIStore } from '@/shared/stores/ui-store';
 import { useAuthStore } from '@/shared/stores/auth-store';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
+import { version } from '../../../package.json';
 
 const pageNames: Record<string, string> = {
   '/': 'Dashboard',
@@ -148,7 +149,7 @@ export function AppLayout() {
             
             <div className="px-2">
               <p className="text-[10px] text-muted-foreground/60 font-medium">
-                Vocal Coach Admin v0.1.0
+                Vocal Coach Admin v{version}
               </p>
               <p className="text-[10px] text-soul-magenta/60 font-bold tracking-tighter uppercase">
                 Supabase Backend
