@@ -19,8 +19,8 @@ interface UIStore {
 }
 
 export const useUIStore = create<UIStore>((set) => ({
-  // Sidebar - por defecto abierto en desktop
-  sidebarOpen: true,
+  // Sidebar - por defecto cerrado para evitar fricción visual
+  sidebarOpen: false,
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   

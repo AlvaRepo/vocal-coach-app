@@ -1,0 +1,32 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: React 19, Vite 6, Supabase JS, TypeScript 5, Tailwind CSS
+  Architecture: Feature-Based / Hexagonal Lite (features, entities, shared)
+  Testing: Vitest (Unit), Playwright (E2E)
+  Style: ESLint + Prettier (Vite default)
+
+strict_tdd: true
+
+rules:
+  proposal:
+    - Include Supabase dashboard manual steps in "User Review Required"
+    - Identify impact on shared/api repositories
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Define expected network states (success/error/loading)
+  design:
+    - Map database fields to snake_case in Supabase and camelCase in frontend
+    - Document schema changes in supabase_schema.sql
+  tasks:
+    - Separate Auth setup from Storage implementation
+    - Keep tasks atomic for easier verification
+  apply:
+    - Follow existing SupabaseRepository pattern
+    - Use Zod for client-side validation
+  verify:
+    - Run playwright tests for auth flows
+    - Run vitest for logic mappers
+  archive:
+    - Update walkthrough with screenshots of the finished UI

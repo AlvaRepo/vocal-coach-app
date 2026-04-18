@@ -17,7 +17,7 @@ export const SEED_STUDENTS: Omit<Student, 'id' | 'createdAt' | 'updatedAt'>[] = 
     phone: '+54 9 387 123-4567',
     type: 'both',
     status: 'active',
-    joinDate: '2024-01-15',
+    joinDate: '2026-01-15',
     vocalRange: 'soprano',
     level: 'intermediate',
     goals: 'Mejorar proyección vocal y prepararse para audición de coro profesional. Trabajar especialmente en el registro de cabeza.',

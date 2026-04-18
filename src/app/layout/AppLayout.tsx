@@ -1,5 +1,6 @@
 // app/layout/AppLayout.tsx
 
+import { useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -48,8 +49,16 @@ const secondaryNavigation = [
 
 export function AppLayout() {
   const location = useLocation();
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { sidebarOpen, toggleSidebar, setSidebarOpen } = useUIStore();
   const { user, signOut } = useAuthStore();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+
+  // Cerrar sidebar al navegar en mobile
+  useEffect(() => {
+    if (isMobile && sidebarOpen) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname, isMobile, setSidebarOpen]);
 
   return (
     <div className="min-h-screen bg-background">

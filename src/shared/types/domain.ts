@@ -52,6 +52,18 @@ export interface Student {
 }
 
 export type ClassStatus = 'draft' | 'ready' | 'completed' | 'cancelled';
+export type ClassroomModuleType = 'sovt' | 'estill' | 'sls' | 'bel-canto' | 'custom' | 'repertoire' | 'warmup';
+
+export interface ModularClassBlock {
+  id: string;
+  type: ClassroomModuleType;
+  title: string;
+  duration: number; // minutos
+  objective: string;
+  exercises: string[];
+  notes?: string;
+  meta?: Record<string, any>; // Para datos específicos de la escuela (ej: { figure: 'Thyroid Tilt' })
+}
 
 export interface ClassType {
   id: string;
@@ -86,6 +98,9 @@ export interface ClassPlan {
   observations?: string;
   homework?: string;
   materials?: string[];
+  
+  // Nuevo Sistema Modular (Advanced)
+  modularBlocks?: ModularClassBlock[];
   
   createdAt: string;
   updatedAt: string;
