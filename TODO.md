@@ -16,8 +16,8 @@
 
 ### Fase 3: Avanzado
 - [ ] **Calendario** - CalendarPlaceholderPage
-- [ ] **Autenticación** - Login de usuarios
-- [ ] **Backend API** - Reemplazar localStorage
+- [x] **Autenticación** - Login de usuarios
+- [x] **Backend API** - Reemplazar localStorage
 
 ---
 
