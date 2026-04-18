@@ -1,36 +1,11 @@
-// entities/class-type/repository.ts
+import { SupabaseRepository } from '@/shared/api/supabase-repository';
+import type { Student, ClassType, Note, Melody, ClassPlan, ClassRecord, ProgressEntry, AttendanceRecord } from '@/shared/types/domain';
 
-import { LocalStorageRepository } from '@/shared/api/local-storage';
-import type { ClassType } from '@/shared/types/domain';
-
-export const classTypeRepository = new LocalStorageRepository<ClassType>('classTypes');
-
-// entities/note/repository.ts
-import type { Note } from '@/shared/types/domain';
-
-export const noteRepository = new LocalStorageRepository<Note>('notes');
-
-// entities/melody/repository.ts
-import type { Melody } from '@/shared/types/domain';
-
-export const melodyRepository = new LocalStorageRepository<Melody>('melodies');
-
-// entities/class-plan/repository.ts
-import type { ClassPlan } from '@/shared/types/domain';
-
-export const classPlanRepository = new LocalStorageRepository<ClassPlan>('classPlans');
-
-// entities/class-record/repository.ts
-import type { ClassRecord } from '@/shared/types/domain';
-
-export const classRecordRepository = new LocalStorageRepository<ClassRecord>('classRecords');
-
-// entities/progress/repository.ts
-import type { ProgressEntry } from '@/shared/types/domain';
-
-export const progressRepository = new LocalStorageRepository<ProgressEntry>('progressEntries');
-
-// entities/attendance/repository.ts
-import type { AttendanceRecord } from '@/shared/types/domain';
-
-export const attendanceRepository = new LocalStorageRepository<AttendanceRecord>('attendanceRecords');
+export const studentRepository = new SupabaseRepository<Student>('students');
+export const classTypeRepository = new SupabaseRepository<ClassType>('class_types');
+export const noteRepository = new SupabaseRepository<Note>('notes');
+export const melodyRepository = new SupabaseRepository<Melody>('melodies');
+export const classPlanRepository = new SupabaseRepository<ClassPlan>('class_plans');
+export const classRecordRepository = new SupabaseRepository<ClassRecord>('class_records');
+export const progressRepository = new SupabaseRepository<ProgressEntry>('progress_entries');
+export const attendanceRepository = new SupabaseRepository<AttendanceRecord>('attendance_records');

@@ -1,12 +1,11 @@
 // features/library/pages/LibraryPage.tsx
 
-import { Plus, Music, Info, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Music, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
 import { Badge } from '@/shared/components/ui/badge';
 import { Input } from '@/shared/components/ui/input';
 import { Textarea } from '@/shared/components/ui/textarea';
@@ -23,12 +22,16 @@ import {
 import { melodyRepository } from '@/entities/repositories';
 import type { Melody } from '@/shared/types/domain';
 import { melodyFormSchema, type MelodyFormData } from '../schemas/melody-form.schema';
+import { StorageService } from '@/shared/api/storage-service';
+import { toast } from 'sonner';
 
 export function LibraryPage() {
   const [melodies, setMelodies] = useState<Melody[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingMelody, setEditingMelody] = useState<Melody | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const form = useForm<MelodyFormData>({
     resolver: zodResolver(melodyFormSchema),
@@ -95,38 +98,57 @@ export function LibraryPage() {
   }
 
   async function onSubmit(data: MelodyFormData) {
-    const tagsArray = data.tags
-      ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
-      : [];
-
-    const melodyData: Omit<Melody, 'id' | 'createdAt' | 'updatedAt'> = {
-      name: data.name,
-      description: data.description || '',
-      category: data.category,
-      difficulty: data.difficulty,
-      key: data.key || undefined,
-      range: data.range || undefined,
-      tempo: data.tempo || undefined,
-      technicalObjective: data.technicalObjective || undefined,
-      teacherNotes: data.teacherNotes || undefined,
-      tags: tagsArray,
-      audioFileReference: data.audioFileReference || undefined,
-      isFavorite: editingMelody?.isFavorite || false,
-      studentIds: editingMelody?.studentIds || [],
-      classTypeIds: editingMelody?.classTypeIds || [],
-    };
-
+    setUploading(true);
     try {
+      let audioPath = data.audioFileReference;
+
+      // 1. Subir archivo si se seleccionó uno nuevo
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `melodies/${fileName}`;
+        
+        audioPath = await StorageService.uploadMelody(selectedFile, filePath);
+        toast.success('Audio subido correctamente');
+      }
+
+      const tagsArray = data.tags
+        ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
+        : [];
+
+      const melodyData: Omit<Melody, 'id' | 'createdAt' | 'updatedAt'> = {
+        name: data.name,
+        description: data.description || '',
+        category: data.category,
+        difficulty: data.difficulty,
+        key: data.key || undefined,
+        range: data.range || undefined,
+        tempo: data.tempo || undefined,
+        technicalObjective: data.technicalObjective || undefined,
+        teacherNotes: data.teacherNotes || undefined,
+        tags: tagsArray,
+        audioFileReference: audioPath || undefined,
+        isFavorite: editingMelody?.isFavorite || false,
+        studentIds: editingMelody?.studentIds || [],
+        classTypeIds: editingMelody?.classTypeIds || [],
+      };
+
       if (editingMelody) {
         await melodyRepository.update(editingMelody.id, melodyData);
       } else {
         await melodyRepository.create(melodyData);
       }
+      
       await loadMelodies();
       setDialogOpen(false);
       setEditingMelody(null);
-    } catch (error) {
+      setSelectedFile(null);
+      toast.success(editingMelody ? 'Melodía actualizada' : 'Melodía creada');
+    } catch (error: any) {
       console.error('Error saving melody:', error);
+      toast.error('Error al guardar: ' + (error.message || 'Error desconocido'));
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -149,6 +171,7 @@ export function LibraryPage() {
     setDialogOpen(open);
     if (!open) {
       setEditingMelody(null);
+      setSelectedFile(null);
       form.reset();
     }
   }
@@ -366,14 +389,23 @@ export function LibraryPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="audioFileReference" className="text-sm font-medium">
-                  Referencia de Audio
+                <label htmlFor="audioFile" className="text-sm font-medium">
+                  Archivo de Audio (MP3/WAV)
                 </label>
-                <Input
-                  id="audioFileReference"
-                  placeholder="URL o referencia al archivo"
-                  {...form.register('audioFileReference')}
-                />
+                <div className="flex flex-col gap-2">
+                  <Input
+                    id="audioFile"
+                    type="file"
+                    accept="audio/*"
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    className="cursor-pointer file:cursor-pointer file:text-primary file:font-semibold"
+                  />
+                  {editingMelody?.audioFileReference && !selectedFile && (
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Ya tiene un audio asignado. Selecciona otro para reemplazarlo.
+                    </p>
+                  )}
+                </div>
               </div>
 
               <DialogFooter>
@@ -384,8 +416,15 @@ export function LibraryPage() {
                 >
                   Cancelar
                 </Button>
-                <Button type="submit">
-                  {editingMelody ? 'Guardar Cambios' : 'Agregar Melodía'}
+                <Button type="submit" disabled={uploading}>
+                  {uploading ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent mr-2" />
+                      Subiendo...
+                    </>
+                  ) : (
+                    editingMelody ? 'Guardar Cambios' : 'Agregar Melodía'
+                  )}
                 </Button>
               </DialogFooter>
             </form>
@@ -393,34 +432,6 @@ export function LibraryPage() {
         </Dialog>
       </div>
 
-      {/* Audio Placeholder Alert */}
-      <Alert variant="warning">
-        <Info className="h-4 w-4" />
-        <AlertTitle>🔴 PLACEHOLDER: Sistema de Audio</AlertTitle>
-        <AlertDescription className="space-y-2">
-          <p className="text-sm">
-            <strong>Estado actual:</strong> Este módulo muestra los metadatos de melodías/escalas 
-            pero NO incluye capacidad de reproducción de audio.
-          </p>
-          
-          <div className="mt-3">
-            <p className="font-semibold text-sm mb-2">Migración futura requerida:</p>
-            <ul className="list-disc list-inside space-y-1 text-xs">
-              <li>Storage: Upload a cloud (S3/Cloudinary/Supabase Storage)</li>
-              <li>Formato: Soporte MP3/WAV, conversión a formato web-optimized</li>
-              <li>Player: Integrar reproductor (react-h5-audio-player o Web Audio API)</li>
-              <li>Features avanzadas: Transposición de tonalidad, ajuste de tempo</li>
-              <li>Grabación: MediaRecorder API para grabar desde navegador</li>
-              <li>Generación: Síntesis de melodías con Tone.js (opcional)</li>
-            </ul>
-          </div>
-
-          <p className="text-xs mt-3">
-            Backend requerido: Endpoint POST /api/melodies/:id/audio, procesamiento async con queue, 
-            CDN para delivery optimizado.
-          </p>
-        </AlertDescription>
-      </Alert>
 
       {/* Melodies Grid */}
       {melodies.length > 0 ? (
@@ -518,6 +529,18 @@ export function LibraryPage() {
                           {tag}
                         </Badge>
                       ))}
+                    </div>
+                  )}
+
+                  {melody.audioFileReference && (
+                    <div className="pt-3">
+                      <audio 
+                        controls 
+                        className="w-full h-8 [&::-webkit-media-controls-enclosure]:bg-surface-dark [&::-webkit-media-controls-panel]:bg-surface-dark"
+                        src={StorageService.getPublicUrl(melody.audioFileReference)}
+                      >
+                        Tu navegador no soporta el elemento de audio.
+                      </audio>
                     </div>
                   )}
                 </div>
